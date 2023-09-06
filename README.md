@@ -107,9 +107,6 @@ baz/0/v/qux      ->  baz.0.v.qux
 
 ```
 
-
-
-
 A basic code example:
 
 ```go
