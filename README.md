@@ -16,13 +16,13 @@ go get github.com/first-amber-fish/piranhas
 Default
 --------
 
-Default deals with setting the default values of a struct. For this the struct tag 'default' is evaluated and set independently of the previous value of the field. 
+Default deals with setting the default values of a struct. For this the struct tag key 'default' is evaluated and set independently of the previous value of field. 
 
-The value of the default tag key should match the data type. The typical formats are specified here, as these are used by the parse functions belonging to the data type. For the datatypes complex64 and complex128 an own parser was developed, which expects cartesian data in the format 'a+bi'. For time the standard golang parser is used. This still needs a layout, which led to it, it beside the default tag key still the layout tag key is queried. If no layout tag key is defined, 'RFC3339' is used. There are a lot of predefined time layouts in golang. You can use them here or define your own layout.  Both a type specification 'RFC822' or '02 Jan 06 15:04 MST' are valid.
+The value of the 'default' tag key should match the data type. The typical formats are specified here, as these are used by the parse functions belonging to the data type. For the datatypes complex64 and complex128 an own parser was developed, which expects cartesian data in the format 'a+bi'. For time the standard golang parser is used. This still needs a layout, which led to it, it beside the 'default' tag key still the 'layout' tag key is queried. If no layout tag key is defined, 'RFC3339' is used. There are a lot of predefined time layouts in golang. You can use them here or define your own layout.  Both a type specification 'RFC822' or '02 Jan 06 15:04 MST' are valid.
 
-Structures, arrays, slices and maps are recursively passed through and the function for setting defaults is called on them. Empty arrays and slices are ignored, as well nil pointers. 
+Structures, arrays, slices and maps are recursively passed through and the function for setting defaults is called on them. Empty arrays and slices are ignored, as well as nil pointers. 
 
-Upper and lower case of variables, as if the variable is exported or not, does not matter.
+Upper and lower case of field names, as if the variable is exported or not, does not matter.
 
 Examples
 --------
@@ -84,11 +84,11 @@ fmt.Println(exampleVar.structVar1.numberVar) //Prints: 5678
 Path
 ----
 
-Path determines the value of simple variables in complex structures. Especially when structs, slices and maps are an instance of documents, it can be challenging to determine the correct value in a pre-programmed way. Path works similar to a file path on the operating system, which uses different directories as location information for a file. Path refers here however not to directories and file, but to structs, slices and maps and fields as location indication and returns simple Varaiblen. Path is not a query language, but specifies in a point notation the way to get to the required variable. 
+Path determines the value of simple variables in complex structures. Especially when structs, slices and maps are an instance of documents, it can be challenging to determine the correct value in a pre-programmed way. Path works similar to a file path on the operating system, which uses different directories as location information for a file. Path refers here not to directories and file, but to structs, array, slices and maps and fields as location indication and returns simple fields. Path is not a query language, but specifies in a point notation the way to get to the required field. 
 
 If a path element hits a struct, the path element is interpreted as a field name. If it is a slice or array, it is interpreted as an index, where 0 is the first index element. If it is a map, the path element is interpreted as a key.  
 
-Path normally does not return whole structs, slices, or maps, but only scalar data types. Exceptions are the data types []Byte (ByteSlice), Time and Duration. Returned is always a copy of the value, so that the original structure can not be changed. Upper and lower case of variables, as if the variable is exported or not, does not matter.
+Path normally does'nt return whole structs, slices, or maps, but only scalar data types. Exceptions are the data types []Byte (ByteSlice), Time and Duration. Returned is always a copy of the field value, so that the original struct can't be changed. Upper and lower case of fields, as if the variable is exported or not, does not matter.
 
 The function GetPathInterface returns the result as interface{}. The user can now examine the data type and then convert it to the target type as needed with a type assertion. For easier use, for each data type returned there is a special function, GetPathDataType(), which takes over this task and returns the correct data type. 
 
@@ -156,7 +156,6 @@ data := person{
 	lastName:  &lastName,
 	age:       58,
 	developer: true,
-
 	address: address{
 		street: "Tellerstraße",
 		number: 29,
