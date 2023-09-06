@@ -32,7 +32,7 @@ A basic example:
 ```go
 import (
     "fmt"
-	"time"
+    "time"
 
     "github.com/first-amber-fish/piranhas"
 )
@@ -115,7 +115,7 @@ A basic code example:
 ```go
 import (
     "fmt"
-	"time"
+    "time"
     
 	"github.com/first-amber-fish/piranhas"
 )
