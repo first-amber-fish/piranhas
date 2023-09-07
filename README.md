@@ -52,17 +52,19 @@ type structExample truct {
 }
 
 type example struct {
-    boolVar     bool          `default:"true"` //<-- StructTag with a default key
-    stringVar1  string        `default:"33"`
-    stringVar2  *string       `default:"33"`
-    nixVar      int8
-    durVar      time.Duration `default:"1m"`
-    dateVar     time.Time     `default:"04.09.1990" layout:"02.01.2006"` //<-- StructTag with a default and layout key
-    complexVar  complex128    `default:"3.5+2.7i"`
-    sliceVar    []structExample
-    mapVar      map[string]structExample
-    structVar1  structExample
-    structVar2  *structExample
+    boolVar        bool           `default:"true"` //<-- StructTag with a default key
+    stringVar1     string         `default:"33"`
+    stringVar2     *string        `default:"33"`
+    nixVar         int8
+    durVar         time.Duration  `default:"1m"`
+    dateVar        time.Time      `default:"04.09.1990" layout:"02.01.2006"` //<-- StructTag with a default and layout key
+    complexVar     complex128     `default:"3.5+2.7i"`
+	stringSlice    []string       `default:"[\"a\",\"b\"]"`
+	stringMapOfInt map[string]int `default:"{\"a\": 5,\"b\": 6}"`
+    sliceVar       []structExample
+    mapVar         map[string]structExample
+    structVar1     structExample
+    structVar2     *structExample
     embeddedExample
 }
 
@@ -78,6 +80,9 @@ fmt.Println(exampleVar.nixVar)               //Prints: 0
 fmt.Println(exampleVar.durVar)               //Prints: 1m0s
 fmt.Println(exampleVar.numberVar)            //Prints: 1234
 fmt.Println(exampleVar.structVar1.numberVar) //Prints: 5678
+fmt.Println(exampleVar.stringSlice[0])       //Prints: a
+fmt.Println(exampleVar.stringMapOfInt["a"])  //Prints: 5
+
 ...
 ```
 

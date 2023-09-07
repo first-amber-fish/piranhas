@@ -26,6 +26,7 @@ func getUnexportedField(field reflect.Value) interface{} {
 func setUnexportedField(field reflect.Value, value reflect.Value) {
 	// create a new reflect.Value at the memory address of the field
 	// with the same type as the field, then set its value to the provided value.
+
 	reflect.NewAt(field.Type(), unsafe.Pointer(field.UnsafeAddr())).Elem().Set(value)
 }
 
@@ -43,6 +44,3 @@ func getPtrInterface(field reflect.Value) interface{} {
 	// create a new interface value using the type and pointer obtained above
 	return reflect.NewAt(field.Type(), unsafe.Pointer(ptr)).Interface()
 }
-
-
-

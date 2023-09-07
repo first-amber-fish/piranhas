@@ -167,7 +167,7 @@ func buildPersonData() *person {
 	lastName := "Ranseier"
 	cetLocation := time.FixedZone("CET", 1*60*60)
 	p := person{
-		passport: passport{"KI123"},
+		passport:  passport{"KI123"},
 		firstName: "Karl",
 		lastName:  &lastName,
 		age:       58,

@@ -230,3 +230,79 @@ func TestSetDefaultsComplext(t *testing.T) {
 		})
 	}
 }
+
+func TestSetDefaultsJson(t *testing.T) {
+	type structurSlice struct {
+		stringSlice    []string  `default:"[\"a\",\"b\"]"`
+		stringSlicePtr *[]string `default:"[\"a\",\"b\"]"`
+	}
+
+	type structurMap struct {
+		stringMapOfInt    map[string]int  `default:"{\"a\": 5,\"b\": 6}"`
+		stringMapOfIntPtr *map[string]int `default:"{\"a\": 5,\"b\": 6}"`
+	}
+
+	type structurMapError struct {
+		stringMapOfInt map[string]int `default:"{\"a\": 5},\"b\": 6}}"`
+	}
+
+	sl := []string{"a", "b"}
+	ml := map[string]int{"a": 5, "b": 6}
+	tests := []struct {
+		name        string
+		input       interface{}
+		expected    interface{}
+		expectedErr error
+	}{
+		{
+			name:  "string slice defined by json default",
+			input: &structurSlice{},
+			expected: &structurSlice{
+				stringSlice:    []string{"a", "b"},
+				stringSlicePtr: &sl,
+			},
+		},
+		{
+			name:  "string map of int defined by json default",
+			input: &structurMap{},
+			expected: &structurMap{
+				stringMapOfInt:    map[string]int{"a": 5, "b": 6},
+				stringMapOfIntPtr: &ml,
+			},
+		},
+		{
+			name:  "string map of int defined with by json error",
+			input: &structurMapError{},
+			expected: &structurMapError{
+				stringMapOfInt: make(map[string]int),
+			},
+			expectedErr: errors.New("failed to parse default tag for field stringMapOfInt: invalid character ',' after top-level value"),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := SetDefaults(test.input)
+
+			if err != nil {
+				fmt.Printf("'%s'\n", err)
+			}
+
+			if err == nil && !reflect.DeepEqual(test.input, test.expected) {
+				t.Errorf("Expected: %+v, but got: %+v", test.expected, test.input)
+			}
+
+			if (err == nil && test.expectedErr != nil) || (err != nil && test.expectedErr == nil) {
+				t.Errorf("Missmatch on expected error")
+			}
+
+			if err != nil && test.expectedErr != nil {
+				if err.Error() != test.expectedErr.Error() {
+					fmt.Printf("'%s'", err.Error())
+
+					t.Errorf("Expected error: %v, but got: %v", test.expectedErr, err)
+				}
+			}
+		})
+	}
+}
