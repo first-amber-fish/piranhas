@@ -1,3 +1,7 @@
+<p align="center">
+<img src="piranha.png" width="150">
+</p>
+
 piranhas 
 ==============================
 
