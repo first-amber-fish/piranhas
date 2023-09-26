@@ -1,6 +1,7 @@
 package piranhas
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -86,7 +87,7 @@ func setDefaultsStruct(ptr interface{}) (err error) {
 			// do nothing for invalid type
 		case reflect.Struct:
 			if fieldValue.Type().String() == "time.Time" && defaultTag != "" {
-				defaultValue, err := parseDefaultValue(defaultTag, layoutTag, fieldValueType)
+				defaultValue, err := parseDefaultValue(defaultTag, layoutTag, fieldValue.Type())
 				if err != nil {
 					return fmt.Errorf("failed to parse default tag for field %s: %s", field.Name, err)
 				}
@@ -98,13 +99,35 @@ func setDefaultsStruct(ptr interface{}) (err error) {
 			}
 
 		case reflect.Slice, reflect.Array:
-			err = setDefaultsSlice(getPtrInterface(fieldValue))
+			if defaultTag != "" && defaultTag != "[]" {
+				defaultValue, err := parseDefaultValue(defaultTag, layoutTag, fieldValue.Type())
+				if err != nil {
+					return fmt.Errorf("failed to parse default tag for field %s: %s", field.Name, err)
+				}
+
+				// overwrite the value with the default value
+				setUnexportedField(fieldValue, defaultValue)
+			} else {
+				err = setDefaultsSlice(getPtrInterface(fieldValue))
+			}
+
 		case reflect.Map:
-			err = setDefaultsMap(getPtrInterface(fieldValue))
+			if defaultTag != "" && defaultTag != "{}" {
+				defaultValue, err := parseDefaultValue(defaultTag, layoutTag, fieldValue.Type())
+				if err != nil {
+					return fmt.Errorf("failed to parse default tag for field %s: %s", field.Name, err)
+				}
+
+				// overwrite the value with the default value
+				setUnexportedField(fieldValue, defaultValue)
+			} else {
+				err = setDefaultsMap(getPtrInterface(fieldValue))
+			}
+
 		default:
 			// handle scalar data types
 			if defaultTag != "" {
-				defaultValue, err := parseDefaultValue(defaultTag, layoutTag, fieldValueType)
+				defaultValue, err := parseDefaultValue(defaultTag, layoutTag, fieldValue.Type())
 				if err != nil {
 					return fmt.Errorf("failed to parse default tag for field %s: %s", field.Name, err)
 				}
@@ -373,6 +396,20 @@ func parseDefaultValue(defaultTag string, layoutTag string, fieldType reflect.Ty
 			return reflect.ValueOf(t), nil
 		}
 		return reflect.Value{}, fmt.Errorf("unsupported field type: %s", fieldType.Kind())
+
+	case reflect.Slice, reflect.Array:
+		defaultValue := reflect.New(fieldType)
+		if err := json.Unmarshal([]byte(defaultTag), defaultValue.Interface()); err != nil {
+			return reflect.Value{}, err
+		}
+		return defaultValue.Elem().Convert(fieldType), nil
+
+	case reflect.Map:
+		defaultValue := reflect.New(fieldType)
+		if err := json.Unmarshal([]byte(defaultTag), defaultValue.Interface()); err != nil {
+			return reflect.Value{}, err
+		}
+		return defaultValue.Elem().Convert(fieldType), nil
 
 	default:
 		// for unsupported field types, return an error
